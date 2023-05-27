@@ -519,7 +519,7 @@ La base di dati è in terza forma normale perchè è in seconda forma normale e 
 
 \vspace{4cm}
 
-\subsection{Sviluppo dell'applicazione android}
+\section{Sviluppo dell'applicazione android}
 Si è poi passati allo sviluppo dell'applicazione android richiesta; si è deciso di usare SQLITE per la creazione e gestione del database, poichè dovendo essere riempito di dati possibilmente sensibili, si è ritenuto che fosse opportuno limitarne l'uso in locale.\\ 
 L'applicazione è in via di sviluppo ma disponibile alla repository con link seguente\\
 
@@ -543,10 +543,10 @@ https://sqlitebrowser.org/dl/ \\
 In fututo è prevista la continuazione dello sviluppo per mezzo di flutter, ma sarà necessario comprendere il linguaggio e convertire il lavoro fatto in java ed xml in dart. 
 
 \pagebreak
-\subsection{Lista Queries}
+\section{Lista Queries}
 
 \begin{small}
-    \subsubsection{creazione tabelle}
+    \subsection{creazione tabelle}
          CREATE TABLE TABELLA$\_$PAZIENTE (NOME VARCHAR, COGNOME VARCHAR, CODICEFISCALE CHAR(16) PRIMARY KEY, CODICESANITARIO CHAR(16), DATA DATE, CITTA VARCHAR, VIA VARCHAR, NUMERO CHAR(4), GENERE VARCHAR(9))";\\
          \vspace{0.5cm}
          
