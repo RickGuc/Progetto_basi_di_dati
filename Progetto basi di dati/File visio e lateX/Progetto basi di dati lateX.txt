@@ -1,0 +1,667 @@
+\documentclass[usenames,dvipsnames]{article}
+\usepackage[a4paper,top=1cm,bottom=0.5cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{multicol}
+\usepackage[table,xcdraw,dvipsnames]{xcolor}
+\usepackage{tikz}
+
+\usetikzlibrary{calc}
+
+\title{Progetto basi di dati}
+\author{Guccione Riccardo IN0301143}
+\date{May 2023}
+
+\begin{document}
+
+\newcommand{\tikzmark}[1]{\tikz[overlay,remember picture] \node (#1){};}
+
+\maketitle
+
+\section{Introduction}
+Il progetto nasce dalla richiesta di un ente esterno di creare ed implementare un database relazionale per la gestione ed organizzazione dei casi clinici di un medico di medicina generale.
+Sono state condotte varie interviste al professionista interessato, atte a cercare di creare l'infrastruttura più adatta alle sue esigenze. \\
+Viene inoltre richiesto lo sviluppo di un applicazione android con database locale (per motivi di sicurezza) che possa andare a sostituire il file pdf che veniva usato precedentemente per gestirei pazienti. 
+\\
+Nella sezione successiva sono illustrate ed organizzate le nozioni principali che sono emerse durante le suddette interviste.
+
+\section{Richieste}
+La prima informazione fornita è riguardante al file pdf della cartella clinica utilizzato precedentemente.
+Nel documento notiamo che sono indicate le informazioni principali del paziente: 
+\begin{multicols}{2}
+\begin{itemize}
+    \item Nome.
+    \item Cognome.
+    \item data di nascita.
+    \item codice fiscale. 
+    \item codice sanitario.
+    \item eventuali esenzioni.
+    \item le patologie in atto.
+    \item la terapia in atto.
+    \item le allergie.
+    \item le patologie pregresse rilevanti.
+    \item tutte le patologie precedenti con le date delle diagnosi.
+    \item le date e gli elenchi dei ricoveri.
+    \item gli esami strumentali e di laboratorio.
+    \item un diario per l'organizzazione della terapia.
+\end{itemize}
+
+\end{multicols}
+\noindent
+Il secondo set di informazioni riguardano alcune precisazioni ricavate dall'intervista, che è necessario aggiungere.
+Cioè:
+\begin{multicols}{2}
+\begin{itemize}
+    \item l'indirizzo di casa. 
+    \item il genere. 
+    \item le date di stop delle terapie precedenti.
+    \item il dosaggio per le terapie. 
+    \item il costo degli esami. 
+    \item aggiungere una sezione per l'esame \\specialistico. 
+    \item gli ospedali in cui sono avvenuti i ricoveri.
+    \item le informazioni sugli operatori sanitari.
+    \item se un paziente è seguito da caregiver per una terapia.
+    \end{itemize}
+
+\end{multicols}
+
+\vspace{1cm}
+
+
+
+\pagebreak
+
+\section{Azioni al database}
+
+\noindent
+Infine si è parlato di quali richieste poter fare al database. Le richieste più immediate sono:
+\begin{itemize}
+    \item avere la possibilità di visualizzare ogni attributo associato al paziente.
+    \item l'eventuale ospedale di ricovero e dove si trova.
+    \item i ricoveri passati.
+    \item la visualizzazione delle patologie. 
+    \item un elenco degli esami passati e futuri.
+    \item un elenco delle terapie passate ed attuali.
+    \item bisogna poter vedere per quali esami un paziente possiede l'esenzione.
+    \item un elenco dei pazienti con un set prefissato di patologie.
+    
+\end{itemize}
+
+\vspace{1.5cm}
+
+
+Mentre le richieste più complesse:
+
+\vspace{1cm}
+
+\begin{itemize}
+    \item Il professionista chiede di poter visualizzare i pazienti hanno contratto una certa patologia nell'ultimo mese. (1a volta al mese)
+    \item il professionista chiede di poter visualizzare un elenco delle terapie più efficaci di un cert'anno, cioè quali hanno una durata media minore. (1a volta al l'anno)
+    \item il professionista chiede di poter vedere se in un certo ospedale sono programmati più di 100 esami dei propri pazienti. (1a volta a settimana)
+    \item il professionista chiede di poter stilare una lista dei pazienti seguiti da caregiver e da operatori sanitari per poter segnalare la sovrapposizione. (1a volta al mese)
+    \item il professionista chiede di avere un recap annuale dei pazienti che hanno terminato una certa terapia durante un cert'anno. (1a volta l'anno)
+    
+\end{itemize}
+
+\vspace{0.5cm}
+
+\pagebreak
+
+
+\section{Diagramma Entità-Relazioni}
+
+Sfruttando le informazioni ricavate dalle interviste è quindi possibile costruire un primo diagramma E-R
+
+\vspace{2cm}
+
+\centerline{\includegraphics[scale=0.5]{Progetto Basi di dati DIAGRAMMA 1.2.png}}
+ 
+
+\pagebreak
+
+\section{Analisi dei dati}
+In questa sezione viene illustrata l'analisi tabulare delle entità e relazioni.
+\vspace{0.5cm}
+\subsection{Eliminazione attributi composti}
+Per prima cosa eliminiamo gli attributi composti; ne identifichiamo 2 con gli indirizzi del Paziente e dell'Ospedale. Per rimuoverli è sufficente collegare le specificazioni direttamente con l'entità.
+
+\vspace{1cm}
+\subsection{Definizione attributi primari}
+Definiamo ora gli identificatori:
+\begin{itemize}
+    \item Per paziente: il Codice sanitario.
+    \item Per il sintomo: aggiungiamo l'Id. Sintomo.
+    \item Per l'Ospedale: La coppia Nome e Città.
+    \item Per la Patologia: il Nome.
+    \item Per l'Esame:  il Nome.
+    \item Per l'Esenzione:  il Nome.
+    \item Per la Terapia: il Nome.
+    \item Per l'Esame reale: aggiungiamo l'Id Esame.
+    \item Per la Terapia reale: aggiungiamo l'Id Terapia.
+\end{itemize}
+
+\pagebreak
+\subsection{Tabelle di analisi}
+\vspace{1cm}
+\centerline{
+\begin{tabular}{|>{\columncolor[HTML]{EFEFEF}}p{2cm}|>{\columncolor[HTML]{EFEFEF}}p{4cm}|>{\columncolor[HTML]{EFEFEF}}p{5cm}|>{\columncolor[HTML]{EFEFEF}}p{4cm}|}
+\hline
+{\color[HTML]{FE0000} \textbf{ENTITA'}} & {\color[HTML]{FE0000} \textbf{DESCRIZIONE}}          & {\color[HTML]{FE0000} \textbf{ATTRIBUTI}}                                                                         & {\color[HTML]{FE0000} \textbf{IDENTIFICATORE}}              \\ \hline
+{\color[HTML]{121212} Paziente}         & {\color[HTML]{121212} Pazienti del professionista}   & {\color[HTML]{121212} Nome, Codice sanitario, Codice Fiscale Data di nascita, Numero di telefono, Esenzione, Città, Via, Numero} & {\color[HTML]{121212} Codice sanitario}                     \\ \hline
+{\color[HTML]{121212} Sintomo}          & {\color[HTML]{121212} Sintomi di vario genere}       & {\color[HTML]{121212} \mbox{Id. Sintomo},  \mbox{Descrizione sintomo}, \mbox{Data di rilevazione}}                                      & {\color[HTML]{121212} Id. Sintomo}                          \\ \hline
+{\color[HTML]{121212} Ospedale}         & {\color[HTML]{121212} Ospedali della zona di \mbox{lavoro}} & {\color[HTML]{121212} Nome, Città, Via, Numero, \mbox{Numero di telefono}}                                               & {\color[HTML]{121212} Nome e Città}                         \\ \hline
+{\color[HTML]{121212} Patologia}        & {\color[HTML]{121212} Patologie di vario genere}     & {\color[HTML]{121212} Nome, Data di rilevazione}                                                                  & {\color[HTML]{121212} Nome}                                 \\ \hline
+{\color[HTML]{121212} Esame}            & {\color[HTML]{121212} Esami prescrivibili}           & {\color[HTML]{121212} Nome, Descrizione, Costo}                                                                   & {\color[HTML]{121212} Nome}                                 \\ \hline
+{\color[HTML]{121212} Esenzione}            & {\color[HTML]{121212} Le  varie esenzioni}           & {\color[HTML]{121212} Nome}                                                                   & {\color[HTML]{121212} Nome}                                 \\ \hline
+{\color[HTML]{121212} Terapia}          & {\color[HTML]{121212} Terapie prescrivibili}         & {\color[HTML]{121212} \mbox{Nome, Dosaggio}, \mbox{Volte a settimana}}                                                               & {\color[HTML]{121212} Nome}                                 \\ \hline
+{\color[HTML]{121212} Esame reale}      & {\color[HTML]{121212} Esami programmati e \mbox{passati}}   & {\color[HTML]{121212} Data ed ora}                                                                                & {\color[HTML]{121212} Id. Esame}                   \\ \hline
+{\color[HTML]{121212} Terapia reale}    & {\color[HTML]{121212} Terapie programmate e passate} & {\color[HTML]{121212} Id. terapia, Data di inizio, Note}                                                                & {\color[HTML]{121212} Id. terapia}                          \\ \hline
+\end{tabular}}
+
+\vspace{2cm}
+\centerline{
+\begin{tabular}{|
+>{\columncolor[HTML]{EFEFEF}}p{2.5cm} |
+>{\columncolor[HTML]{EFEFEF}}p{5.9cm} |
+>{\columncolor[HTML]{EFEFEF}}p{3.5cm} |
+>{\columncolor[HTML]{EFEFEF}}p{3.5cm} |}
+\hline
+{\color[HTML]{FE0000} \textbf{RELAZIONE}} & {\color[HTML]{FE0000} \textbf{DESCRIZIONE}}                       & {\color[HTML]{FE0000} \textbf{COMPOSIZIONE}} & {\color[HTML]{FE0000} \textbf{ATTRIBUTI}} \\ \hline
+Rilevazione                               & Rilevazione del sintomo di un paziente                            & Sintomo, Paziente                            & Nessuno                                   \\ \hline
+Ricovero                                  & Ricovero di un paziente in un Ospedale                            & Paziente, Ospedale                           & Data ricovero, Data \mbox{rilascio}              \\ \hline
+Contrazione                               & La contrazione del paziente di una \mbox{patologia}                      & Paziente, Patologia                          & Nessuno                                   \\ \hline
+Esenzionamento                            & Se un esame ha una certa esenzione                                & Esame, Esenzione                          & Nessuno                                   \\ \hline
+Occorrenza                                & L'occorrenza di un esame nel tempo                                & Esame, Esame reale                           & Nessuno                                   \\ \hline
+Svolgimento                               & Lo svolgimento dell'esame di un paziente                          & Esame reale, Paziente, Ospedale, Patologia              & Nessuno                                   \\ \hline
+Occorrenza                                & L'occorrenza di una terapia nel tempo                             & Terapia, Terapia reale                       & Nessuno                                   \\ \hline
+Seguimento                                     & Lo svolgimento della terapia attuale                              & \mbox{Terapia reale,} Paziente, Patologia                      & Caregiver, Operatore Sanitario            \\ \hline
+Seguimento                                   & Lo svolgimento della terapia nel \mbox{passato,}   giunta al termine                       & \mbox{Terapia reale,} Paziente, Patologia                      & Caregiver, Operatore Sanitario, Data fine \\ \hline
+Possedimento                               & La possessione di uana o più esenzioni da parte di un paziente  & Paziente, Esenzione                                    & Nessuno                  \\ \hline
+  
+\end{tabular}}
+
+\pagebreak
+\section{Vincoli non esprimibiili}
+Illustriamo in breve i vincoli non esprimibili :
+\begin{itemize}
+    \item I pazienti non possono avere più esami alla stessa ora dello stesso giorno
+    \item i pazienti non possono essere ricoverati in più ospedali allo stesso tempo ma possono essere ricoverati in diversi ospedali nel tempo
+\end{itemize}
+
+\vspace{2cm}
+
+\section{Tabella dei volumi}
+Nel paragrafo viene data la tabella coi volumi approssimati delle entità e delle relazioni.
+
+\vspace{2cm}
+
+\begin{center}
+\begin{Large}
+\begin{tabular}{|
+>{\columncolor[HTML]{EFEFEF}}l |
+>{\columncolor[HTML]{EFEFEF}}l |
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{RELAZIONE}} & {\color[HTML]{FE0000} \textbf{TIPO}} & {\color[HTML]{FE0000} \textbf{VOLUME}} \\ \hline
+Paziente                                  & E                                    & 1500                                   \\ \hline
+Sintomo                                   & E                                    & 15000                                  \\ \hline
+Ospedale                                  & E                                    & 20                                     \\ \hline
+Patologia                                 & E                                    & 500                                    \\ \hline
+Esame                                     & E                                    & 3000                                   \\ \hline
+Esenzione                                 & E                                    & 200
+                \\ \hline
+Terapia                                   & E                                    & 15000                                  \\ \hline
+Esame reale                               & E                                    & 200                                    \\ \hline
+Terapia reale                             & E                                    & 10000                                  \\ \hline
+Rilevazione                               & R                                    & 150000                                 \\ \hline
+Ricovero                                  & R                                    & 10000                                  \\ \hline
+Contrazione                               & R                                    & 15000                                  \\ \hline
+Esenzionamento                            & R                                    & 3000                                   \\ \hline
+Possedimento                              & R                                    & 1000
+                \\ \hline
+Occorrenza                                & R                                    & 30000                                  \\ \hline
+Svolgimento                               & R                                    & 30000                                  \\ \hline
+Occorrenza                                & R                                    & 15000                                  \\ \hline
+Seguimento                                     & R                                    & 500                                    \\ \hline
+Seguimento                                    & R                                    & 14500                                  \\ \hline
+\end{tabular}
+\end{Large}
+\end{center}
+\pagebreak
+
+\section{Analisi delle generalizazioni e ridondanze e ristrutturazione schema E-R}
+\subsection{Analisi generalizzazione e ridondanze}
+
+\noindent
+Analizziamo le genralizzazioni, si vede che ne è presente una associata all'entità padre Esami.
+Bisogna quindi eliminare la generalizzazione, si è scelto di aggregarla al padre, poichè, nonostante la generalizzazione sia totale e quindi c'è la possibilità che vengano a crearsi numerosi valori nulli (maggiore uso di memoria), l'accesso alle occorrenze dell'entità padre  è logicamente lo stesso a quelle delle occorrenze delle entita figlie, ed inoltre verrebero a crearsi diverse entità per l'occorrenza degli esami reali, per cui non è preferibile l'aggregazione ai figli.
+
+\vspace{0.5cm}
+
+\noindent
+Per quanto riguarda le ridondanze, non ne sono state rilevate; infatti tutti gli attributi sono unici e non ricavabili, ed i cicli non permettono di ricavare le singole relazioni, se una per volta venissero rimosse.
+
+\vspace{1cm}
+
+ 
+
+\vspace{1cm}
+\noindent
+\subsection{Ristrutturazione dello schema E-R} 
+
+\vspace{1cm}
+
+\centerline{\includegraphics[scale=0.5]{Progetto Basi di dati DIAGRAMMA 2.2.png}}
+
+
+\pagebreak
+\section{Schema logico}
+
+\subsection{Costruzione delle tabelle}
+Voglio passare dallo schema E-R alle tabelle che andranno poi a formare il database relazionale, per fare ciò guardo le cardinalità nelle relazioni e costruisco di conseguenza il numero di tabelle adeguato.
+
+\begin{itemize}
+    \item Per la relazione "Rilevazione", vedo che è uno a molti, per cui costruisco 2 tabelle, una per i Sintomi e una per i Pazienti; con chiave esterna Il codice Fiscale sulla tabella Sintomi.
+    \item Per la relazione "Ricovero", vedo che la relazione è molti a molti, ma ho gia la tabella Pazienti, è quindi necesssario costruire 2 ulteriori  tabelle una  Ricoveri e una Ospedali; con chiavi esterne Codice Fiscale e nome ospedale sulla tabella Ricoveri .
+    \item Per la relazione "Contrazione", anche qui la relazione è uno a molti, ho già la tabella Pazienti, quindi creo una tabella Patologie contratte; con chiave esterna Codice Fiscale paziente.
+    \item Per la relazione "Occorrenza" dell'Esame, anche qui la relazione è uno a molti, quindi creo una tabella  Descrizione Esami e una tabella Esami; con chiave esterna il Nome dell'Esame sulla tabella Esami.
+    \item  Per la relazione "Svolgimento", vedo che la relazione è uno a molti, quindi non devo creare ulteriori tabelle ma uso le tabelle Pazienti, Ospedali e Patologia; con chiave esterna rispettivamente Codice Fiscale, Nome Ospedale e Id. Patologia, sulla tabella Esami.
+    \item Per la relazione "Occorrenza" della Terapia, anche qui la relazione è uno a molti, quindi creo una tabella  Descrizione Terapie e una tabella Terapie; con chiave esterna il Nome della Terapia sulla tabella Terapie.
+    \item Per la relazione "Segue" e la relazione "Seguiva", sono entrambe uno a molti ma hanno degli attributi, che posso aggiungere la tabella Terapie, in tal modo non devo creare nuove tabelle e posso usare le tabelle Pazienti, Patologie; con chiave esterna rispettivamente Codice Fiscale e Id. Patologia, sulla tabella Terapie.  
+    \item Per la relazione "Esenzionamento", vedo che è una relazione molti a molti, per cui creo la tabella Esenzioni; con chiavi esterne il Nome dell'Esame e l'identificativo dell'esenzione e la tabella Registro esenzioni.
+    \item  Per la relazione "Possedimento", vedo che è una relazione molti a molti, per cui sfruttando la tabella Registro esenzioni creo un'ulteriore tabella che chiamo Esenzioni pazienti; con chiavi esterne il paziente come Codice Fiscale e l'identificativo dell'esenzione.
+    
+    
+\end{itemize}
+
+
+
+
+\subsection{Scelta delle chiavi primarie}
+
+Per completare la progettazione del database relazionale scegliamo le chiavi primaie delle tabelle.
+Ricordo che è necessario che il valore non sia mai nullo e che non si ripeta.
+\begin{itemize}
+    \item Per la tabella Paziente posso utilizzare il Codice Fiscale.
+    \item Per la tabella Ospedali è meglio aggiungere un identificatore univoco, che chiamo Id. Ospedale, per evitare problematiche di utilizzo (più sedi o rare omonimie).
+    \item Per la tabella Ricoveri ho bisogno di aggiungere una colonna per il codice identificativo che chiamo Id. ricovero.
+    \item Per la tabella Patologie contratte uso la colonna Id. Patologia.
+    \item Per la tabella Descrizione Esami posso utilizzare la colonna Nome.
+    \item Per la tabella Esami uso la colonna Id. Esame.
+    \item Per la tabella Descrizione Terapie posso usare la colonna Nome.
+    \item Per la tabella Terapie uso la colonna Id. Terapia.
+    \item Per la tabella Esenzioni la coppia Esenzione ed Esame è chiave primaria.
+    \item Per la tabella Registro esenzioni la colonna Nome.
+    \item Per la tabella Esenzioni pazienti creo la colonna Codice esenzionamento
+\end{itemize}
+\vspace{1.5cm}
+
+\pagebreak
+
+\subsection{Tabelle}
+
+  \begin{center}
+ 
+
+\begin{minipage}[c]{0.475\linewidth}
+
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{PAZIENTI}} \\ \hline
+Nome                                     \\ \hline
+Cognome                                  \\ \hline
+Data di nascita                          \\ \hline
+Numero di telefono                       \\ \hline \tikzmark{thirdmarker}
+Codice Fiscale  \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                \\ \hline
+Codice Sanitario                           \\ \hline
+Esenzione                                \\ \hline
+Città                                    \\ \hline
+Via                                      \\ \hline
+Numero                                   \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.475\linewidth}
+\hspace{3CM}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{OSPEDALI}} \\ \hline \tikzmark{firstmarker}
+ Id. Ospedale \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                       \\ \hline 
+ Nome                                     \\ \hline
+ Città                                    \\ \hline
+ Via                                      \\ \hline
+ Numero                                   \\ \hline
+ Numero di telefono                       \\ \hline
+\end{tabular}
+\end{minipage}
+
+\begin{minipage}[c]{0.475\linewidth}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{PATOLOGIE CONTRATTE}} \\ \hline \tikzmark{ninethmarker}
+Patologia                                           \\ \hline \tikzmark{fourtmarker}
+Codice sanitario paziente                           \\ \hline
+Data rilevazione                                    \\ \hline \tikzmark{nineteenthmarker}
+Id. Contrazioni  \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                   \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.475\linewidth}
+\hspace{3cm}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{RICOVERI}} \\ \hline \tikzmark{secondmarker}
+ Ospedale                                 \\ \hline \tikzmark{fifthmarker}
+ Paziente                \\ \hline
+ Data ricovero                            \\ \hline
+ Data rilascio                            \\ \hline
+ Id. Ricovero  \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                           \\ \hline
+\end{tabular}
+\end{minipage}
+     
+  \end{center} 
+
+\noindent
+\hspace{0.2cm}
+\begin{minipage}[c]{0.475\linewidth}
+\begin{tabular}[b]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{SINTOMI}} \\ \hline
+Id. Sintomo  \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                              \\ \hline
+Descrizione sintomo                     \\ \hline \tikzmark{sixthmarker}
+Paziente               \\ \hline
+Data rilevazione                        \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.475\linewidth}
+\hspace{3CM}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{DESCRIZIONE ESAMI}} \\ \hline \tikzmark{fourteenthmarker}
+Nome \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                                \\ \hline
+Tipo                                              \\ \hline
+Costo                                             \\ \hline
+Specialista                                       \\ \hline
+\end{tabular}
+\end{minipage}
+
+\noindent
+\hspace{0.2cm}
+\begin{minipage}[c]{0.475\linewidth}
+\vspace{0.5cm}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{ESAMI}} \\ \hline \tikzmark{fifteenthmarker}
+Esame                                 \\ \hline
+Data ed ora                           \\ \hline \tikzmark{seventhmarker}
+Paziente                              \\ \hline \tikzmark{tenthmarker}
+Patologia                             \\ \hline
+Operatore sanitario                   \\ \hline \tikzmark{twelfthmarker}
+Ospedale                              \\ \hline
+Id. Esame   \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                             \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.475\linewidth}
+\hspace{3CM}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{DESCRIZIONE TERAPIE}} \\ \hline \tikzmark{sixteenthmarker}
+Nome    \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                                         \\ \hline
+Dosaggio                                            \\ \hline
+Volte a settimana                                         \\ \hline
+\end{tabular}
+\end{minipage}
+
+\noindent
+\hspace{0.2cm}
+\begin{minipage}[b]{0.475\linewidth}
+\vspace{0.5cm}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{TERAPIE}} \\ \hline \tikzmark{thirteenthmarker}
+Terapia                                 \\ \hline \tikzmark{eighthmarker}
+Paziente                                \\ \hline \tikzmark{eleventhmarker}
+Patologia                               \\ \hline
+Operatore sanitario                     \\ \hline
+Caregiver                               \\ \hline
+Data inizio                             \\ \hline
+Data fine                               \\ \hline
+Note                                    \\ \hline
+Id. terapia \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                               \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.400\linewidth}
+\hspace{3CM}
+\begin{tabular}[t]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{ESENZIONI}} \\ \hline \tikzmark{seventeenthmarker}
+Esenzione \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                 \\ \hline \tikzmark{eighteenthmarker}
+Esame    \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                 \\ \hline
+\end{tabular}
+\end{minipage}
+
+\noindent
+\hspace{0.2cm}
+\begin{minipage}[b]{0.475\linewidth}
+\vspace{0.5cm}
+\begin{tabular}[c]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{ESENZIONI PAZIENTI}} \\ \hline
+Codice Esenzionamento  \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p \end{small}}                              \\ \hline \tikzmark{20thmarker}
+Paziente                                 \\ \hline \tikzmark{22thmarker}
+Esenzione                                \\ \hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}[c]{0.475\linewidth}
+\hspace{3CM}
+\vspace{0.3cm}
+\begin{tabular}[b]{|
+>{\columncolor[HTML]{EFEFEF}}l |}
+\hline
+{\color[HTML]{FE0000} \textbf{REGISTRO ESENZIONI}} \\ \hline \tikzmark{21thmarker}
+Esenzione \includegraphics[scale=0.02]{Chiave.png}{\begin{small}\color[HTML]{ebd234}p      \end{small}}                                 \\ \hline
+\end{tabular}
+\end{minipage}
+
+
+\tikz[overlay,remember picture]\draw[red,<-] ($(firstmarker)+(-.8em,0.1em)$)--($(firstmarker)+(-.-2em,0.1em)$)--($(secondmarker)+(-.-2em,0.2em)$)--($(secondmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[violet,<-] ($(thirdmarker)+(-.8em,-0.3em)$)--($(thirdmarker)+(-.-1.2em,-0.2em)$)--($(fourtmarker)+(-.-1.2em,0.2em)$)--($(fourtmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[brown,<-] ($(thirdmarker)+(9.2em,0.5em)$)--($(thirdmarker)+(18.9em,0.5em)$)--($(fifthmarker)+(-.-10.5em,0.2em)$)--($(fifthmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[blue,<-] ($(thirdmarker)+(-.8em,0.05em)$)--($(thirdmarker)+(-.-2em,0.05em)$)--($(sixthmarker)+(-.-2em,0.2em)$)--($(sixthmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[green,<-] ($(thirdmarker)+(-.8em,0.4em)$)--($(thirdmarker)+(-.-3em,0.4em)$)--($(seventhmarker)+(-.-3em,0.2em)$)--($(seventhmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[orange,<-] ($(thirdmarker)+(-.8em,0.7em)$)--($(thirdmarker)+(-.-4em,0.7em)$)--($(eighthmarker)+(-.-4em,0.2em)$)--($(eighthmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[cyan,<-] ($(nineteenthmarker)+(15.3em,0.6em)$)--($(nineteenthmarker)+(19em,0.6em)$)--($(tenthmarker)+(19.1em,0.5em)$)--($(tenthmarker)+(9.3em,0.5em)$);
+
+\tikz[overlay,remember picture]\draw[RoyalPurple,<-] ($(nineteenthmarker)+(15.3em,-0.1em)$)--($(nineteenthmarker)+(17.3em,-0.1em)$)--($(eleventhmarker)+(17.4em,0.5em)$)--($(eleventhmarker)+(9.3em,0.5em)$);
+
+\tikz[overlay,remember picture]\draw[teal,->] ($(twelfthmarker)+(9.3em,0.5em)$)--($(twelfthmarker)+(23em,0.5em)$)--($(firstmarker)+(-6.4em,0.6em)$)--($(firstmarker)+(-.8em,0.6em)$);
+
+\tikz[overlay,remember picture]\draw[olive,<-] ($(sixteenthmarker)+(-.8em,-0.1em)$)--($(sixteenthmarker)+(-4em,-0.1em)$)--($(thirteenthmarker)+(25.3em,0.5em)$)--($(thirteenthmarker)+(9.3em,0.5em)$);
+
+\tikz[overlay,remember picture]\draw[magenta,<-] ($(fourteenthmarker)+(-.8em,-0.1em)$)--($(fourteenthmarker)+(-4em,-0.1em)$)--($(fifteenthmarker)+(25.3em,0.5em)$)--($(fifteenthmarker)+(9.3em,0.5em)$);
+
+\tikz[overlay,remember picture]\draw[black,->] ($(eighteenthmarker)+(7em,0.5em)$)--($(eighteenthmarker)+(15.9em,0.5em)$)--($(fourteenthmarker)+(16em,0.5em)$)--($(fourteenthmarker)+(13em,0.5em)$);
+
+\tikz[overlay,remember picture]\draw[RubineRed,<-] ($(thirdmarker)+(-.8em,0.9em)$)--($(thirdmarker)+(-.-5em,0.9em)$)--($(20thmarker)+(-.-5em,0.2em)$)--($(20thmarker)+(-.7em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[Blue,<-] ($(21thmarker)+(-.8em,-0.1em)$)--($(21thmarker)+(-9.4em,-0.1em)$)--($(22thmarker)+(19.95em,0.2em)$)--($(22thmarker)+(13em,0.2em)$);
+
+\tikz[overlay,remember picture]\draw[Red,<-] ($(21thmarker)+(-.8em,0.9em)$)--($(21thmarker)+(-.-5em,0.9em)$)--($(seventeenthmarker)+(-.-5em,0.2em)$)--($(seventeenthmarker)+(-.7em,0.2em)$);
+
+\pagebreak
+\section{Riduzione in forma Normale}
+\subsection{1\textsuperscript{a} forma Normale}
+La base di dati è in prima forma normale visto che ogni colonna è composta da valori atomici.
+
+\vspace{0.5cm}
+
+\subsection{2\textsuperscript{a} forma Normale}
+La base di dati è in seconda forma normale perchè è in prima forma normale e tutti gli attributi dipendono dall'interezza della chiave primaria.
+
+\vspace{0.5cm}
+
+\subsection{3\textsuperscript{a} forma Normale}
+La base di dati è in terza forma normale perchè è in seconda forma normale e tutti gli attributi dipendono solo dalla chiave primaria.
+
+\vspace{4cm}
+
+\subsection{Sviluppo dell'applicazione android}
+Si è poi passati allo sviluppo dell'applicazione android richiesta; si è deciso di usare SQLITE per la creazione e gestione del database, poichè dovendo essere riempito di dati possibilmente sensibili, si è ritenuto che fosse opportuno limitarne l'uso in locale.\\ 
+L'applicazione è in via di sviluppo ma disponibile alla repository con link seguente\\
+
+https://github.com/RickGuc/Progetto$\_$schedario$\_$app\\
+
+\noindent
+Tuttavia è gia disponibile una versione con delle funzioni principali e con la possibilità di vedere i risultati di alcune query predefinite.\\
+L'apk in questione si trova invece nella repository del progetto, alla pagina:\\
+
+https://github.com/RickGuc/Progetto$\_$basi$\_$di$\_$dati \\
+
+\noindent
+In più è anche presente un database "fac-smile" per testare l'applicazione che è però necessario aggiungere alla directory del database dell'app per l'utilizzo nel proprio dispositivo.\\
+
+\noindent
+Il database può inoltre essere aperto con l'ausilio dell'applicazione desktop sqlite browser,\\ scaricabile al link\\
+
+https://sqlitebrowser.org/dl/ \\
+
+\noindent
+In fututo è prevista la continuazione dello sviluppo per mezzo di flutter, ma sarà necessario comprendere il linguaggio e convertire il lavoro fatto in java ed xml in dart. 
+
+\pagebreak
+\subsection{Lista Queries}
+
+\begin{small}
+    \subsubsection{creazione tabelle}
+         CREATE TABLE TABELLA$\_$PAZIENTE (NOME VARCHAR, COGNOME VARCHAR, CODICEFISCALE CHAR(16) PRIMARY KEY, CODICESANITARIO CHAR(16), DATA DATE, CITTA VARCHAR, VIA VARCHAR, NUMERO CHAR(4), GENERE VARCHAR(9))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$OSPEDALI (ID INT  PRIMARY KEY AUTOINCREMENT, NOME VARCHAR, CITTA VARCHAR, VIA VARCHAR, NUMERO CHAR(4), NUMERODITELEFONO VARCHAR)";\\
+         \vspace{0.5cm}
+
+         \noindent
+         CREATE TABLE TABELLA$\_$PATOLOGIE$\_$CONTRATTE (ID INT PRIMARY KEY AUTOINCREMENT, NOME VARCHAR, PAZIENTE CHAR(16), DATA$\_$RILEVAZIONE DATE, FOREIGN KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$RICOVERI (ID INT PRIMARY KEY AUTOINCREMENT, OSPEDALE INT, PAZIENTE CHAR(16), DATA$\_$RICOVERO DATE, DATA$\_$RILASCIO DATE, FOREIGN KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE), FOREIGN KEY (OSPEDALE) REFERENCES TABELLA$\_$OSPEDALI (ID))";\\
+         \vspace{0.5cm}
+
+         \noindent
+         "CREATE TABLE TABELLA$\_$SINTOMI (ID INT PRIMARY KEY AUTOINCREMENT, DESCRIZIONE$\_$SINTOMO VARCHAR, DATA$\_$RILEVAZIONE DATE, PAZIENTE CHAR(16), FOREIGN KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$DESCRIZIONE$\_$ESAMI (NOME VARCHAR PRIMARY KEY, TIPO VARCHAR, COSTO SMALLINT, SPECIALISTA VARCHAR)";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$DESCRIZIONE$\_$TERAPIE (NOME VARCHAR PRIMARY KEY, DOSAGGIO VARCHAR, VOLTE$\_$A$\_$SETTIMANA TINYINT)";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$ESAMI (ID INT PRIMARY KEY AUTOINCREMENT, ESAME VARCHAR, DATA DATE, ORA TIME, PAZIENTE CHAR(16), PATOLOGIA INT, OPERATORE$\_$SANITARIO VARCHAR, OSPEDALE INT, FOREIGN KEY (ESAME) REFERENCES TABELLA$\_$DESCRIZIONE$\_$ESAMI (NOME), FOREIGN KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE), FOREIGN KEY (PATOLOGIA) REFERENCES TABELLA$\_$PATOLOGIE$\_$CONTRATTE (ID))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$TERAPIE (ID INT PRIMARY KEY AUTOINCREMENT, TERAPIA VARCHAR, PAZIENTE CHAR(16), PATOLOGIA INT, OPERATORE$\_$SANITARIO VARCHAR, CAREGIVER VARCHAR,  DATA$\_$INIZIO DATE, DATA-FINE DATE, NOTE VARCHAR, FOREIGN KEY (TERAPIA) REFERENCES TABELLA$\_$DESCRIZIONE$\_$TERAPIE (NOME), FOREIGN KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE), FOREIGN KEY (PATOLOGIA) REFERENCES TABELLA$\_$PATOLOGIE$\_$CONTRATTE (ID), FOREIGN KEY (OSPEDALE) REFERENCES TABELLA$\_$OSPEDALI (ID))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$ESENZIONI$\_$PAZIENTI (CODICE INT PRIMARY KEY AUTOINCREMENT, PAZIENTE CHAR(16), ESENZIONE VARCHAR, FOREIGN  KEY (PAZIENTE) REFERENCES TABELLA$\_$PAZIENTE (CODICEFISCALE), FOREIGN KEY (ESENZIONE) REFERENCES \\
+         TABELLA$\_$REGISTRO$\_$ESENZIONI (ESENZIONE))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$ESENZIONI (ESENZIONE VARCHAR PRIMARY KEY, ESAME VARCHAR PRIMARY KEY, FOREIGN KEY (ESAME) REFERENCES TABELLA$\_$DESCRIZIONE$\_$ESAMI (NOME), FOREIGN KEY (ESENZIONE) REFERENCES TABELLA$\_$REGISTRO$\_$ESENZIONI (ESENZIONE))";\\
+         \vspace{0.5cm}
+         
+         \noindent
+         CREATE TABLE TABELLA$\_$REGISTRO$\_$ESENZIONI (ESENZIONE VARCHAR PRIMARY KEY);\\
+         \vspace{0.5cm}
+
+         \subsubsection{Altre Queries}
+         \noindent
+         SELECT * FROM TABELLA$\_$PAZIENTE;
+         \vspace{0.5cm}
+         
+         \noindent
+         SELECT NOME FROM TABELLLA$\_$PAZIENTE (uguale per ogni attributo necessario nella tabella paziente);
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, o.NOME, r.DATA$\_$RICOVERO, o.CITTA, o.VIA, o.NUMERO FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$RICOVERI r ON p.CODICEFISCALE = r.PAZIENTE
+         INNER JOIN TABELLA$\_$OSPEDALI o ON o.ID = r.OSPEDALE WHERE r.DATA$\_$RILASCIO IS NULL;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, o.NOME, r.DATA$\_$RICOVERO, r.DATA$\_$RILASCIO FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$RICOVERI r ON p.CODICEFISCALE = r.PAZIENTE
+         INNER JOIN TABELLA$\_$OSPEDALI o ON o.ID = r.OSPEDALE WHERE p.CODICEFISCALE = (SELECT CODICEFISCALE FROM TABELLA$\_$PAZIENTE WHERE NOME = ? AND COGNOME = ?); 
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, t.PATOLOGIA FROM TABELLA$\_$PAZIENTE p INNER JOIN\\ TABELLA$\_$PATOLOGIE$\_$CONTRATTE t ON p.CODICEFISCALE = t.PAZIENTE ORDER BY COGNOME DESC;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, r.NOME FROM TABELLA$\_$PAZIENTE p INNER JOIN\\ TABELLA$\_$PATOLOGIE$\_$CONTRATTE r ON p.CODICEFISCALE = r.PAZIENTE WHERE p.CODICEFISCALE = (SELECT CODICEFISCALE FROM TABELLA$\_$PAZIENTE WHERE NOME = ? AND COGNOME = ?);
+         \vspace{0.5cm}
+       
+         \noindent
+         SELECT p.NOME, p.COGNOME, e.ESAME, e.DATA, e.ORA FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$ESAMI e ON p.CODICEFISCALE = e.PAZIENTE;
+         \vspace{0.5cm}
+  
+         \noindent
+         SELECT p.NOME, p.COGNOME, t.TERAPIA, t.DATA$\_$INIZIO, t.DATA$\_$FINE FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$TERAPIE t ON p.CODICEFISCALE = t.PAZIENTE;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, e.ESENZIONE FROM TABELLA$\_$PAZIENTE p INNER JOIN\\ TABELLA$\_$ESENZIONI$\_$PAZIENTI e ON p.CODICEFISCALE = e.PAZIENTE ORDER BY COGNOME DESC;  
+         \vspace{0.5cm}
+         
+         \noindent
+         SELECT p.NOME, p.COGNOME, e.ESAME FROM TABELLA$\_$PAZIENTE p INNER JOIN\\ TABELLA$\_$ESENZIONI$\_$PAZIENTI t ON p.CODICEFISCALE = t.PAZIENTE INNER JOIN\\ TABELLA$\_$REGISTRO$\_$ESENZIONI r ON t.ESENZIONE = r.ESENZIONE INNER JOIN TABELLA$\_$ESENZIONI e ON r.ESENZIONE = e.ESENZIONE;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT * FROM TABELLA$\_$PAZIENTE p WHERE EXISTS (SELECT 1 FROM TABELLA$\_$DESCRIZIONE$\_$PATOLOGIE a INNER JOIN TABELLA$\_$PAZIENTE p ON p.CODICEFISCALE = a.PAZIENTE WHERE a.PATOLOGIA IN ('GASTRITE','MAL DI SCHIENA');
+         \vspace{0.5cm}
+         
+         \noindent
+         SELECT p.NOME, p.COGNOME, pc.NOME FROM TABELLA-PAZIENTE p INNER JOIN\\ TABELLA$\_$PATOLOGIE$\_$CONTRATTE pc ON p.CODICEFISCALE = pc.PAZIENTE   AND pc.DATA$\_$RILEVAZIONE $<$= date('now', '-1 month') ORDER BY pc.NOME;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT t.TERAPIA AS Terapia, AVG(julianday(t.DATA$\_$FINE) - julianday(t.DATA$\_$INIZIO)) AS DifferenzaMedia FROM TABELLA$\_$TERAPIE t WHERE strftime('$\%$Y', t.DATA$\_$FINE) = ? GROUP BY t.TERAPIA ORDER BY DifferenzaMedia DESC;
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT o.NOME AS Ospedale, COUNT(e.ID) AS NumeroEsami FROM TABELLA$\_$OSPEDALI o INNER JOIN TABELLA$\_$ESAMI e ON o.ID = e.OSPEDALE WHERE e.DATA > date('now') GROUP BY o.NOME HAVING COUNT(e.ID) $\>$ 100
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME AS Paziente, t.CAREGIVER AS Caregiver, t.OPERATORE$\_$SANITARIO AS OperatoreSanitario FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$TERAPIE t ON p.CODICEFISCALE = t.PAZIENTE WHERE t.CAREGIVER IS NOT NULL AND t.OPERATORE$\_$SANITARIO IS NOT NULL
+         \vspace{0.5cm}
+
+         \noindent
+         SELECT p.NOME, p.COGNOME, t.TERAPIA FROM TABELLA$\_$PAZIENTE p INNER JOIN TABELLA$\_$TERAPIE t ON p.CODICEFISCALE = t.PAZIENTE WHERE t.TERAPIA = ? AND strftime('$\%$Y', t.DATA$\_$FINE) = ?
+         
+         \vspace{0.5cm}
+         
+\end{small}
+\end{document}
