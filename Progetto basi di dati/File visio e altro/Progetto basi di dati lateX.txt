@@ -20,7 +20,7 @@
 \section{Introduction}
 Il progetto nasce dalla richiesta di un ente esterno di creare ed implementare un database relazionale per la gestione ed organizzazione dei casi clinici di un medico di medicina generale.
 Sono state condotte varie interviste al professionista interessato, atte a cercare di creare l'infrastruttura più adatta alle sue esigenze. \\
-Viene inoltre richiesto lo sviluppo di un applicazione android con database locale (per motivi di sicurezza) che possa andare a sostituire il file pdf che veniva usato precedentemente per gestirei pazienti. 
+Viene inoltre richiesto lo sviluppo di un applicazione android con database locale (per motivi di sicurezza) che possa andare a sostituire il file pdf che veniva usato precedentemente per gestire i pazienti. 
 \\
 Nella sezione successiva sono illustrate ed organizzate le nozioni principali che sono emerse durante le suddette interviste.
 
@@ -233,7 +233,7 @@ Seguimento                                    & R                               
 
 \noindent
 Analizziamo le genralizzazioni, si vede che ne è presente una associata all'entità padre Esami.
-Bisogna quindi eliminare la generalizzazione, si è scelto di aggregarla al padre, poichè, nonostante la generalizzazione sia totale e quindi c'è la possibilità che vengano a crearsi numerosi valori nulli (maggiore uso di memoria), l'accesso alle occorrenze dell'entità padre  è logicamente lo stesso a quelle delle occorrenze delle entita figlie, ed inoltre verrebero a crearsi diverse entità per l'occorrenza degli esami reali, per cui non è preferibile l'aggregazione ai figli.
+Bisogna quindi eliminare la generalizzazione; si è scelto di effettuare l'aggregazione al padre, poichè nonostante la generalizzazione sia totale e quindi c'è la possibilità che vengano a crearsi numerosi valori nulli (maggiore uso di memoria), l'accesso alle occorrenze dell'entità padre  è logicamente lo stesso a quelle delle occorrenze delle entita figlie, ed inoltre verrebero a crearsi entità diverse per le occorrenze degli esami reali, perciò non è preferibile l'aggregazione ai figli.
 
 \vspace{0.5cm}
 
