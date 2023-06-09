@@ -181,10 +181,9 @@ Possedimento                               & La possessione di uana o più esenz
 
 \pagebreak
 \section{Vincoli non esprimibiili}
-Illustriamo in breve i vincoli non esprimibili :
 \begin{itemize}
-    \item I pazienti non possono avere più esami alla stessa ora dello stesso giorno
-    \item i pazienti non possono essere ricoverati in più ospedali allo stesso tempo ma possono essere ricoverati in diversi ospedali nel tempo
+    \item I pazienti non possono avere più esami alla stessa ora dello stesso giorno; sarà quindi necessario introdurre un vincolo UNIQUE nella creazione di una tabella. (vedi queries)
+    \item i pazienti non possono essere ricoverati in più ospedali allo stesso tempo ma possono essere ricoverati in diversi ospedali nel tempo; sarà quindi necessario introdurre un vincolo UNIQUE e CHECK nella creazione di una tabella. (vedi queries)
 \end{itemize}
 
 \vspace{2cm}
